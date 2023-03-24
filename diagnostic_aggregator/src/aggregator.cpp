@@ -66,7 +66,7 @@ Aggregator::Aggregator() :
   other_analyzer_ = new OtherAnalyzer(other_as_errors);
   other_analyzer_->init(base_path_); // This always returns true
   add_srv_ = n_.advertiseService("/diagnostics_agg/add_diagnostics", &Aggregator::addDiagnostics, this);
-  diag_sub_ = n_.subscribe("/diagnostics", 1000, &Aggregator::diagCallback, this);
+  diag_sub_ = n_.subscribe("/diagnostics", 1000, &Aggregator::diagCallback, this, ros::TransportHints().unreliable());
   agg_pub_ = n_.advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics_agg", 1);
   toplevel_state_pub_ = n_.advertise<diagnostic_msgs::DiagnosticStatus>("/diagnostics_toplevel_state", 1);
 
