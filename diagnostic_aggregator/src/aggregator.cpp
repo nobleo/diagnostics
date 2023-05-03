@@ -226,7 +226,7 @@ void Aggregator::publishData()
   diagnostic_msgs::DiagnosticStatus diag_toplevel_state;
   diag_toplevel_state.name = "toplevel_state";
   diag_toplevel_state.level = -1;
-  int min_level = 255;
+  int8_t max_level_without_stale = 0;
   uint non_ok_status_depth = 0;
   uint report_idx = 0;
 
@@ -252,9 +252,10 @@ void Aggregator::publishData()
       non_ok_status_depth = depth;
       report_idx = i;
     }
-    if (processed[i]->level < min_level)
-    {
-      min_level = processed[i]->level;
+    if (
+      processed[i]->level > max_level_without_stale &&
+      processed[i]->level != diagnostic_msgs::DiagnosticStatus::STALE) {
+      max_level_without_stale = processed[i]->level;
     }
   }
   // When a non-ok item was found, copy the complete status message once
@@ -292,9 +293,10 @@ void Aggregator::publishData()
       non_ok_status_depth = depth;
       report_idx = i;
     }
-    if (processed_other[i]->level < min_level)
-    {
-      min_level = processed_other[i]->level;
+    if (
+      processed_other[i]->level > max_level_without_stale &&
+      processed_other[i]->level != diagnostic_msgs::DiagnosticStatus::STALE) {
+      max_level_without_stale = processed_other[i]->level;
     }
     // When a non-ok item was found AND it was reported in 'other' categpry, copy the complete status message once
     if (diag_toplevel_state.level > diagnostic_msgs::DiagnosticStatus::OK && non_ok_status_depth > 0)
@@ -310,9 +312,14 @@ void Aggregator::publishData()
 
   agg_pub_.publish(diag_array);
 
-  // Top level is error if we have stale items, unless all stale
-  if (diag_toplevel_state.level > int(DiagnosticLevel::Level_Error) && min_level <= int(DiagnosticLevel::Level_Error))
-    diag_toplevel_state.level = DiagnosticLevel::Level_Error;
+  // If there is at least one stale message and there are no errors, report stale
+  if (
+    diag_toplevel_state.level == DiagnosticLevel::Level_Stale &&
+    max_level_without_stale < DiagnosticLevel::Level_Error) {
+    diag_toplevel_state.level = DiagnosticLevel::Level_Stale;
+  } else {
+    diag_toplevel_state.level = max_level_without_stale;
+  }
 
   // Store latest toplevel state for immediate publish checking
   diag_toplevel_ = diag_toplevel_state.level;

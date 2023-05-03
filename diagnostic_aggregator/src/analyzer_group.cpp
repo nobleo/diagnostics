@@ -253,7 +253,7 @@ vector<boost::shared_ptr<diagnostic_msgs::DiagnosticStatus> > AnalyzerGroup::rep
     return output;
   }
 
-  bool all_stale = true;
+  int8_t max_level_without_stale = 0;
 
   for (unsigned int j = 0; j < analyzers_.size(); ++j)
   {
@@ -278,17 +278,24 @@ vector<boost::shared_ptr<diagnostic_msgs::DiagnosticStatus> > AnalyzerGroup::rep
         diagnostic_msgs::KeyValue kv;
         kv.key = nice_name;
         kv.value = processed[i]->message;
-        
-        all_stale = all_stale && (processed[i]->level == int(DiagnosticLevel::Level_Stale));
+
+        if (processed[i]->level != DiagnosticLevel::Level_Stale) {
+          max_level_without_stale = max(max_level_without_stale, processed[i]->level);
+        }
         header_status->level = max(header_status->level, processed[i]->level);
         header_status->values.push_back(kv);
       }
     }
   }
 
-  // Report stale as errors unless all stale
-  if (header_status->level == int(DiagnosticLevel::Level_Stale) && !all_stale)
-    header_status->level = DiagnosticLevel::Level_Error;
+  // If one STALE and no ERROR, report STALE
+  if (
+    header_status->level == DiagnosticLevel::Level_Stale &&
+    max_level_without_stale < DiagnosticLevel::Level_Error) {
+    header_status->level = DiagnosticLevel::Level_Stale;
+  } else {
+    header_status->level = max_level_without_stale;
+  }
 
   header_status->message = valToMsg(header_status->level);
 
