@@ -258,6 +258,7 @@ void Aggregator::publishData()
     diag_toplevel_state.values = msg_to_report->values;
   }
 
+  non_ok_status_depth = 0;
   std::vector<std::shared_ptr<DiagnosticStatus>> processed_other =
     other_analyzer_->report();
   for (const auto & msg : processed_other) {
@@ -292,7 +293,7 @@ void Aggregator::publishData()
   agg_pub_->publish(diag_array);
 
   if (
-    diag_toplevel_state.level == diagnostic_msgs::msg::DiagnosticStatus::STALE &&
+    max_level == diagnostic_msgs::msg::DiagnosticStatus::STALE &&
     max_level_without_stale < diagnostic_msgs::msg::DiagnosticStatus::ERROR) {
     diag_toplevel_state.level = diagnostic_msgs::msg::DiagnosticStatus::STALE;
   } else {
