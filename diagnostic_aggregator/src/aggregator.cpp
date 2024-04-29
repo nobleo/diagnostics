@@ -246,7 +246,8 @@ void Aggregator::publishData()
     }
     if (
       msg->level > max_level_without_stale &&
-      msg->level != diagnostic_msgs::msg::DiagnosticStatus::STALE) {
+      msg->level != diagnostic_msgs::msg::DiagnosticStatus::STALE)
+    {
       max_level_without_stale = msg->level;
     }
   }
@@ -277,7 +278,8 @@ void Aggregator::publishData()
     }
     if (
       msg->level > max_level_without_stale &&
-      msg->level != diagnostic_msgs::msg::DiagnosticStatus::STALE) {
+      msg->level != diagnostic_msgs::msg::DiagnosticStatus::STALE)
+    {
       max_level_without_stale = msg->level;
     }
   }
@@ -294,12 +296,12 @@ void Aggregator::publishData()
 
   if (
     max_level == diagnostic_msgs::msg::DiagnosticStatus::STALE &&
-    max_level_without_stale < diagnostic_msgs::msg::DiagnosticStatus::ERROR) {
+    max_level_without_stale < diagnostic_msgs::msg::DiagnosticStatus::ERROR)
+  {
     diag_toplevel_state.level = diagnostic_msgs::msg::DiagnosticStatus::STALE;
   } else {
     diag_toplevel_state.level = max_level_without_stale;
   }
-
 
 
   last_top_level_state_ = diag_toplevel_state.level;

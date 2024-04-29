@@ -329,7 +329,8 @@ std::vector<std::shared_ptr<diagnostic_msgs::msg::DiagnosticStatus>> AnalyzerGro
   // If one STALE and no ERROR, report STALE
   if (
     header_status->level == diagnostic_msgs::msg::DiagnosticStatus::STALE &&
-    max_level_without_stale < diagnostic_msgs::msg::DiagnosticStatus::ERROR) {
+    max_level_without_stale < diagnostic_msgs::msg::DiagnosticStatus::ERROR)
+  {
     header_status->level = diagnostic_msgs::msg::DiagnosticStatus::STALE;
   } else {
     header_status->level = max_level_without_stale;
