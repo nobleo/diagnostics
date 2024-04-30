@@ -2,7 +2,7 @@
 
 # Overview
 
-The diagnostics system collects information about hardware drivers and robot hardware to make them availaible to users and operators.
+The diagnostics system collects information about hardware drivers and robot hardware to make them available to users and operators.
 The diagnostics system contains tools to collect and analyze this data.
 
 The diagnostics system is build around the `/diagnostics` topic. The topic is used for `diagnostic_msgs/DiagnosticArray` messages.
@@ -37,7 +37,11 @@ Diagnostics messages that are not aggregated can be visualized by [`rqt_runtime_
 The [`ros2` branch](https://github.com/ros/diagnostics/tree/ros2) targets
 
 - *Humble Hawksbill*
-- *Iron Irwini* and
+- *Iron Irwini*
+
+The [`ros2-jazzy` branch](https://github.com/ros/diagnostics/tree/ros2-jazzy) targets
+
+- *Jazzy Jalisco*
 - *Rolling Ridley*
 
 # License
