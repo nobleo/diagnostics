@@ -25,10 +25,6 @@ if(BUILD_TESTING)
         test_cpu_monitor
         test/systemtest/test_cpu_monitor.py
         TIMEOUT 10)
-    ament_add_pytest_test(
-        test_cpu_monitor
-        test/systemtest/test_cpu_monitor.py
-        TIMEOUT 10)
     add_launch_test(
         test/systemtest/test_ntp_monitor_launchtest.py
         TARGET ntp_monitor_launchtest
