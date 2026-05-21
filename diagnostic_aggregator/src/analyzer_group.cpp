@@ -112,9 +112,15 @@ bool AnalyzerGroup::init(
     }
 
     if (!ns.empty() && !an_type.empty() && !an_path.empty()) {
-      RCLCPP_DEBUG(
-        logger_, "Group '%s', creating %s '%s' (breadcrumb: %s) ...", nice_name_.c_str(),
-        an_type.c_str(), an_path.c_str(), ns.c_str());
+      if (known_analyzers_.count(an_path) == 0) {
+        RCLCPP_INFO(
+          logger_, "Group '%s', creating %s '%s' (breadcrumb: %s) ...", nice_name_.c_str(),
+          an_type.c_str(), an_path.c_str(), ns.c_str());
+      } else {
+        RCLCPP_DEBUG(
+          logger_, "Group '%s', re-creating %s '%s' (breadcrumb: %s) ...", nice_name_.c_str(),
+          an_type.c_str(), an_path.c_str(), ns.c_str());
+      }
 
       try {
         if (!analyzer_loader_.isClassAvailable(an_type)) {
@@ -174,9 +180,13 @@ bool AnalyzerGroup::init(
   if (analyzers_.size() == 0 && !nice_name_.empty()) {
     init_ok = false;
     RCLCPP_ERROR(logger_, "No analyzers initialized in AnalyzerGroup '%s'", n->get_namespace());
+  } else if (known_analyzers_.empty()) {
+    RCLCPP_INFO(
+      logger_, "Initialized analyzer group '%s' with path '%s' and breadcrumb '%s'.",
+      nice_name_.c_str(), path_.c_str(), breadcrumb_.c_str());
   } else {
     RCLCPP_DEBUG(
-      logger_, "Initialized analyzer group '%s' with path '%s' and breadcrumb '%s'.",
+      logger_, "Re-initialized analyzer group '%s' with path '%s' and breadcrumb '%s'.",
       nice_name_.c_str(), path_.c_str(), breadcrumb_.c_str());
   }
 
@@ -187,6 +197,20 @@ AnalyzerGroup::~AnalyzerGroup()
 {
   RCLCPP_DEBUG(logger_, "destructor");
   analyzers_.clear();
+}
+
+void AnalyzerGroup::setKnownAnalyzers(const std::set<std::string> & known)
+{
+  known_analyzers_ = known;
+}
+
+std::set<std::string> AnalyzerGroup::getAnalyzerNames() const
+{
+  std::set<std::string> names;
+  for (const auto & analyzer : analyzers_) {
+    names.insert(analyzer->getName());
+  }
+  return names;
 }
 
 bool AnalyzerGroup::addAnalyzer(std::shared_ptr<Analyzer> & analyzer)

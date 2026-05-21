@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -129,6 +130,21 @@ public:
     const std::string & base_path, const std::string & breadcrumb,
     const rclcpp::Node::SharedPtr node);
 
+  /*!
+   *\brief Set known analyzer paths to suppress INFO logs for already-existing analyzers.
+   *
+   * When re-initializing, pass the names of previously loaded analyzers so that
+   * only newly added analyzers are logged at INFO level.
+   */
+  DIAGNOSTIC_AGGREGATOR_PUBLIC
+  void setKnownAnalyzers(const std::set<std::string> & known);
+
+  /*!
+   *\brief Get the names (paths) of all currently loaded analyzers.
+   */
+  DIAGNOSTIC_AGGREGATOR_PUBLIC
+  std::set<std::string> getAnalyzerNames() const;
+
   /**!
    *\brief Add an analyzer to this analyzerGroup
    */
@@ -188,6 +204,12 @@ private:
   std::vector<std::shared_ptr<StatusItem>> aux_items_;
 
   std::vector<std::shared_ptr<Analyzer>> analyzers_;
+
+  /*!
+   *\brief Set of analyzer paths known from a previous initialization.
+   * Used to suppress redundant INFO logs on re-init.
+   */
+  std::set<std::string> known_analyzers_;
 
   /*
    *\brief The map of names to matchings is stored internally.

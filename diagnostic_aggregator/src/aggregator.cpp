@@ -149,7 +149,12 @@ void Aggregator::initAnalyzers()
 
   {  // lock the mutex while analyzer_group_ and other_analyzer_ are being updated
     std::lock_guard<std::mutex> lock(mutex_);
+    std::set<std::string> known_analyzers;
+    if (analyzer_group_) {
+      known_analyzers = analyzer_group_->getAnalyzerNames();
+    }
     analyzer_group_ = std::make_unique<AnalyzerGroup>();
+    analyzer_group_->setKnownAnalyzers(known_analyzers);
     if (!analyzer_group_->init(base_path_, "", n_)) {
       RCLCPP_ERROR(logger_, "Analyzer group for diagnostic aggregator failed to initialize!");
     }
